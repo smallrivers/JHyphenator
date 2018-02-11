@@ -3,7 +3,7 @@
 
 JHyphenator is a Java implementation of Frank Liang's hyphenation algorithm. Martin Fietz ported
 it to Java in 2015. I forked it in 2018 and adjusted for use in my Android project [@Voice Aloud
-Reader]().
+Reader](https://play.google.com/store/apps/details?id=com.hyperionics.avar).
 
 I removed
 the original HyphenationPattern.java file by mfietz, and replaced it with HyphenPattern class that
