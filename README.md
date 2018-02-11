@@ -1,7 +1,11 @@
-# JHyphenator ported to Android
+# JHyphenator ported to Android (also usable in other Java environments)
+
 
 JHyphenator is a Java implementation of Frank Liang's hyphenation algorithm. Martin Fietz ported
-it to Java in 2015, and I forked it in 2018 and adjusted for use in my Android project. I removed
+it to Java in 2015. I forked it in 2018 and adjusted for use in my Android project [@Voice Aloud
+Reader]().
+
+I removed
 the original HyphenationPattern.java file by mfietz, and replaced it with HyphenPattern class that
 reads original [language-code].js files from [Hyphenopoly](https://github.com/mnater/Hyphenopoly)
 project, packaged into Android resource directory res/raw, and the pattern files renamed to _js, e.g.
@@ -14,6 +18,9 @@ Included hyphenation patterns were adapted from [Hyphenator.js](https://code.goo
 and [Hyphenopoly](https://github.com/mnater/Hyphenopoly)
 
 # Language patterns
+The number of pattrns is now increased to 44, from the 29 included in the original JHyphenator.
+The codes given in parenthesis may not be correct ISO language codes, but the file names to use
+in Java code.
 
 * American English (en)
 * Armenian (hy)
