@@ -85,9 +85,24 @@ import org.junit.runner.RunWith;
         System.out.println(hs);
     }
 
+    @Test
+    @Parameters({
+            "бесконечными,  бес-ко-неч-ны-ми",
+    })
+    public void testRu(String input, String expected) {
+        Hyphenator h = Hyphenator.getInstance("ru");
+        assertNotNull(h);
+        String actual = join(h.hyphenate(input), "-");
+        assertEquals(expected, actual);
+        String hs = h.hyphenateText("Сияет бесконечными огнями колоссальный мегаполис, давно поглотивший округ Ориндж. Город поглощает и людей, маня бесконечными соблазнами.");
+        assertEquals(hs, "Си\u00ADя\u00ADет бес\u00ADко\u00ADнеч\u00ADны\u00ADми ог\u00ADня\u00ADми ко\u00ADлос\u00ADсаль\u00ADный ме\u00ADга\u00ADпо\u00ADлис, дав\u00ADно по\u00ADгло\u00ADтив\u00ADший округ Ориндж. Го\u00ADрод по\u00ADгло\u00ADща\u00ADет и лю\u00ADдей, ма\u00ADня бес\u00ADко\u00ADнеч\u00ADны\u00ADми со\u00ADблаз\u00ADна\u00ADми.");
+        System.out.println(hs);
+    }
+
 
     @Test
     @Parameters({
+      "ich, ich",
       "Kochschule, Koch-schu-le", 
       "Seewetterdienst, See-wet-ter-dienst",
       "Hochverrat, Hoch-ver-rat", 
@@ -143,7 +158,7 @@ import org.junit.runner.RunWith;
       "message, mes-sage"
     })
     public void testEnUs(String input, String expected) {
-        Hyphenator h = Hyphenator.getInstance("en-us");
+        Hyphenator h = Hyphenator.getInstance("en");
         assertNotNull(h);
         String actual = join(h.hyphenate(input), "-");
         assertEquals(expected, actual);
