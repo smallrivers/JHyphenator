@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -16,38 +17,66 @@ public class Hyphenator implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final HashMap<HyphenationPattern, Hyphenator> cached;
-
-    static {
-        cached = new HashMap<HyphenationPattern, Hyphenator>();
-    }
+    //private static HashMap<String, Hyphenator> cached;
+//
+//    static {
+//        cached = new HashMap<>();
+//    }
 
     private TrieNode trie;
     private int leftMin;
     private int rightMin;
+    private String patternChars;
+    private String splitRegEx;
 
-    private Hyphenator(HyphenationPattern pattern) {
+    private Hyphenator(HyphenPattern pattern) {
         this.trie = createTrie(pattern.patterns);
         this.leftMin = pattern.leftMin;
         this.rightMin = pattern.rightMin;
+        String pc = pattern.patternChars.replace("-", "\\-");
+        String s = pc.charAt(0) == '_' ? pc.substring(1) : pc;
+        if (s.startsWith("\\-"))
+            s = s.substring(2);
+        patternChars = pc + s.toUpperCase();
+        splitRegEx = "((?<=[^" + patternChars + "])|(?=[^_" + patternChars + "]))";
+
     }
 
     /**
      * Returns a hyphenator instance for a given hypenation pattern
      *
-     * @param hyphenationPattern hyphenation language pattern
+     * @param lang hyphenation language
      * @return newly created or cached hyphenator instance
      */
-    public static Hyphenator getInstance(HyphenationPattern hyphenationPattern) {
-        synchronized (cached) {
-            if (!cached.containsKey(hyphenationPattern)) {
-                cached.put(hyphenationPattern, new Hyphenator(hyphenationPattern));
-                return cached.get(hyphenationPattern);
-            }
+    public static Hyphenator getInstance(String lang) {
+        HyphenPattern pattern = HyphenPattern.create(lang);
+        if (pattern == null)
+            return null;
+        return new Hyphenator(pattern);
 
-            return cached.get(hyphenationPattern);
-        }
+//        synchronized (cached) {
+//            if (!cached.containsKey(lang)) {
+//                HyphenPattern pattern = HyphenPattern.create(lang);
+//                if (pattern == null)
+//                    return null;
+//                cached.put(lang, new Hyphenator(pattern));
+//            }
+//            return cached.get(lang);
+//        }
     }
+
+    public int getMinLen() {
+        return leftMin + rightMin;
+    }
+
+    public String getPatternCharsLU() {
+        String s = patternChars.charAt(0) == '_' ? patternChars.substring(1) : patternChars;
+        return patternChars + s.toUpperCase();
+    }
+
+//    public static void clearCache() {
+//        cached = new HashMap<>();
+//    }
 
     private static TrieNode createTrie(Map<Integer, String> patternObject) {
         TrieNode t, tree = new TrieNode();
@@ -155,4 +184,51 @@ public class Hyphenator implements Serializable {
         return result;
     }
 
+    public String hyphenateHtml(String snt) {
+        int minLen = leftMin + rightMin;
+        String[] as = snt.split(splitRegEx);
+        StringBuilder bld = new StringBuilder();
+        boolean inTag = false;
+        for (int i = 0; i < as.length; i++) {
+            String s = as[i];
+            if (inTag && s.equals(">"))
+                inTag = false;
+            else if (!inTag) {
+                if (s.equals("<"))
+                    inTag = true;
+                else {
+                    // not in tag
+                    if (s.length() >= minLen) {
+                        List<String> list = hyphenate(s);
+                        StringBuilder result = new StringBuilder(list.get(0));
+                        for (int j = 1; j < list.size(); j++) {
+                            result.append("\u00ad").append(list.get(j));
+                        }
+                        s = result.toString();
+                    }
+                }
+            }
+            bld.append(s);
+        }
+        return bld.toString();
+    }
+
+    public String hyphenateText(String snt) {
+        int minLen = leftMin + rightMin;
+        String[] as = snt.split(splitRegEx);
+        StringBuilder bld = new StringBuilder();
+        for (int i = 0; i < as.length; i++) {
+            String s = as[i];
+            if (s.length() >= minLen) {
+                List<String> list = hyphenate(s);
+                StringBuilder result = new StringBuilder(list.get(0));
+                for (int j = 1; j < list.size(); j++) {
+                    result.append("\u00ad").append(list.get(j));
+                }
+                s = result.toString();
+            }
+            bld.append(s);
+        }
+        return bld.toString();
+    }
 }

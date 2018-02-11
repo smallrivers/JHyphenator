@@ -1,8 +1,15 @@
 package de.mfietz.jhyphenator;
 
+import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.FileSystems;
 import java.util.List;
+import java.util.Locale;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -11,6 +18,47 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JUnitParamsRunner.class) public class HyphenatorTest {
+
+    public HyphenatorTest() {
+        HyphenPattern.setStreamReaderProvider(new HyphenPattern.StreamReaderProvider() {
+            /**
+             * @param lang - 2 letter language code, e.g. "en", "pl", or "en_gb" for British Engish
+             *             patterns
+             * @return InputStreamReader for the hyphenation pattern file or resource
+             * @throws IOException
+             */
+            @Override
+            public InputStreamReader getPatStreamForLang(String lang) throws IOException {
+                // this provider finds android src/main/res/raw directory with hyphenation patterns,
+                // reads pattern files from there.
+                String path = Hyphenator.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+                // Example of path returned above on Windows:
+                //     /C:/android/atVoiceLibs/JHyphenator/build/intermediates/classes/debug/
+                path = path.substring(0, path.indexOf("/build/")) + "/src/main/res/raw/";
+                InputStreamReader patIsr = new InputStreamReader(new FileInputStream(
+                        path + lang + "_js"), "UTF-8");
+                return patIsr;
+            }
+        });
+    }
+
+    /**
+     * Example of setting StreamReaderProvider on Android within a class extending ContextWrapper,
+     * e.g. Application, Activity, Service...
+     */
+//    HyphenPattern.setStreamReaderProvider(new HyphenPattern.StreamReaderProvider() {
+//        @Override
+//        public InputStreamReader getPatStreamForLang(String lang) throws IOException {
+//            int resId = getResources().getIdentifier(lang+"_js", "raw", getPackageName());
+//            if (resId == 0)
+//                return null;
+//            InputStreamReader patIsr = new InputStreamReader(
+//                    getResources().openRawResource(resId), "UTF-8");
+//            return patIsr;
+//        }
+//    });
+
+
 
     public static String join(List<String> list, String delimiter) {
         if (list == null || list.size() == 0) {
@@ -25,6 +73,21 @@ import org.junit.runner.RunWith;
 
     @Test
     @Parameters({
+            "conselheiros, con-se-lheiros",
+    })
+    public void testPt(String input, String expected) {
+        Hyphenator h = Hyphenator.getInstance("pt");
+        assertNotNull(h);
+        String actual = join(h.hyphenate(input), "-");
+        assertEquals(expected, actual);
+        String hs = h.hyphenateText("Decerto, o montante das penas será acrescido de algumas dezenas, ou mesmo centenas, de anos.");
+        assertEquals(hs, "De\u00ADcerto, o mon\u00ADtante das penas será acres\u00ADcido de al\u00ADgumas de\u00ADzenas, ou mesmo cen\u00ADtenas, de anos.");
+        System.out.println(hs);
+    }
+
+
+    @Test
+    @Parameters({
       "Kochschule, Koch-schu-le", 
       "Seewetterdienst, See-wet-ter-dienst",
       "Hochverrat, Hoch-ver-rat", 
@@ -34,37 +97,56 @@ import org.junit.runner.RunWith;
       "Christian, Chris-ti-an"
     }) 
     public void testDe(String input, String expected) {
-        HyphenationPattern de = HyphenationPattern.lookup("de");
-        Hyphenator h = Hyphenator.getInstance(de);
+        Hyphenator h = Hyphenator.getInstance("de");
+        assertNotNull(h);
         String actual = join(h.hyphenate(input), "-");
         assertEquals(expected, actual);
     }
 
     @Test
     @Parameters({
-      "crocodile, croc-o-dile", 
-      "activity, ac-tiv-ity",
-      "potato, po-ta-to",
-      "hyphenation, hy-phen-a-tion",
-      "podcast, pod-cast", "message, mes-sage"
+            "Konstantynopol, Kon-stan-ty-no-pol",
+            "uwięzienie, uwię-zie-nie",
+            "niepodległość, nie-pod-le-głość",
+            "gość, gość",
+            "kat, kat",
+            "kawa, ka-wa",
+            "kawał, ka-wał",
+            "małostkowaty, ma-łost-ko-wa-ty"
     })
-    public void testEnUs(String input, String expected) {
-        HyphenationPattern us = HyphenationPattern.lookup("en_us");
-        Hyphenator h = Hyphenator.getInstance(us);
+    public void testPl(String input, String expected) {
+        Hyphenator h = Hyphenator.getInstance("pl");
+        assertNotNull(h);
         String actual = join(h.hyphenate(input), "-");
         assertEquals(expected, actual);
     }
-    
+
     @Test
     @Parameters({
-      "segítség, se-gít-ség" 
+      "segítség, se-gít-ség"
     })
     public void testHu(String input, String expected) {
-      HyphenationPattern us = HyphenationPattern.lookup("hu");
-      Hyphenator h = Hyphenator.getInstance(us);
-      String actual = join(h.hyphenate(input), "-");
-      assertEquals(expected, actual);
+        Hyphenator h = Hyphenator.getInstance("hu");
+        assertNotNull(h);
+        String actual = join(h.hyphenate(input), "-");
+        assertEquals(expected, actual);
   }
 
+
+    @Test
+    @Parameters({
+      "crocodile, croc-o-dile",
+      "activity, ac-tiv-ity",
+      "potato, potato",
+      "hyphenation, hy-phen-ation",
+      "podcast, pod-cast",
+      "message, mes-sage"
+    })
+    public void testEnUs(String input, String expected) {
+        Hyphenator h = Hyphenator.getInstance("en-us");
+        assertNotNull(h);
+        String actual = join(h.hyphenate(input), "-");
+        assertEquals(expected, actual);
+    }
 
 }
