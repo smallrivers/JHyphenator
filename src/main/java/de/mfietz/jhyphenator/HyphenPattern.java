@@ -10,8 +10,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 // GKochaniak, 2/6/2018
 // One hunge enum is not a good idea for mobile devices (Android)
@@ -68,7 +70,14 @@ public class HyphenPattern {
                 else if (line.matches("\\s*patternChars\\s*:\\s*\\\".*\\\".*")) {
                     String[] ss = line.split("\\\"");
                     patChars = ss[1];
-                }
+                } else if (line.matches("\\s*patternChars\\s*:\\s*unescape\\(\\s*\\\".*\\\"\\).*")) {
+                    // patternChars: unescape("ଆଅଇଈଉଊଋଏଐଔକଗଖଘଙଚଛଜଝଞଟଠଡଢଣତଥଦଧନପଫବଭମଯରଲଵଶଷସହଳିୀାୁୂୃୋୋୈୌୗ୍ଃଂ%u200D"),
+                    String[] ss = line.split("\\\"");
+                    patChars = ss[1];
+                    // convert %uXXXX to \\uXXXX, then decode to actual character
+                    Properties p = new Properties();
+                    p.load(new StringReader("ue="+patChars.replace("%u", "\\u")));
+                    patChars = p.getProperty("ue");                }
             }
             return new HyphenPattern(lang, leftMin, rightMin, pattern, patChars);
         }
