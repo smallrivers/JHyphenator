@@ -73,6 +73,28 @@ import org.junit.runner.RunWith;
 
     @Test
     @Parameters({
+            "ଊଋଏଐଔକଗଖଘଙଚଛଜ, ଊଋ-ଏ-ଐ-ଔ-କ-ଗ-ଖ-ଘ-ଙ-ଚ-ଛଜ"
+    })
+    public void testOr(String input, String expected) {
+        Hyphenator h = Hyphenator.getInstance("or");
+        assertNotNull(h);
+        String actual = join(h.hyphenate(input), "-");
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    @Parameters({
+            "അആഇഈഉഊഋൠഌ, അആ-ഇ-ഈ-ഉ-ഊ-ഋ-ൠഌ"
+    })
+    public void testMl(String input, String expected) {
+        Hyphenator h = Hyphenator.getInstance("ml");
+        assertNotNull(h);
+        String actual = join(h.hyphenate(input), "-");
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    @Parameters({
             "conselheiros, con-se-lheiros",
     })
     public void testPt(String input, String expected) {
