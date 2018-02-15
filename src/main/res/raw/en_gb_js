@@ -16,3 +16,15 @@ Hyphenopoly.languages['en-gb'] = {
     patternArrayLength: 181888,
     valueStoreLength: 35544
 };
+
+  // Hyphenation exceptions from https://github.com/ytiurin/hyphen/blob/master/patterns/en-gb.js
+  var exceptions=`
+uni-ver-sity
+uni-ver-sit-ies
+how-ever
+ma-nu-script
+ma-nu-scripts
+re-ci-pro-city
+through-out
+some-thing
+`;

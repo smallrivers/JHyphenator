@@ -1,21 +1,18 @@
 package de.mfietz.jhyphenator;
 
-import static junit.framework.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.FileSystems;
 import java.util.List;
-import java.util.Locale;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnitParamsRunner.class) public class HyphenatorTest {
 
@@ -172,12 +169,24 @@ import org.junit.runner.RunWith;
 
     @Test
     @Parameters({
-      "crocodile, croc-o-dile",
-      "activity, ac-tiv-ity",
-      "potato, potato",
-      "hyphenation, hy-phen-ation",
-      "podcast, pod-cast",
-      "message, mes-sage"
+            // exceptions from https://github.com/ytiurin/hyphen/blob/master/patterns/en-us.js
+            "associate, as-so-ciate",
+            "ASSOCIATES, AS-SO-CIATES",
+            "declination, dec-li-na-tion",
+            "Obligatory, Oblig-a-tory",
+            "present, present",
+            "philanthropic, phil-an-thropic",
+            "Reciprocity, Reci-procity",
+            "recognizance, re-cog-ni-zance",
+            "Reformation, Ref-or-ma-tion",
+            "table, ta-ble",
+                // automatic hyphenation
+            "crocodile, croc-o-dile",
+            "activity, ac-tiv-ity",
+            "potato, potato",
+            "hyphenation, hy-phen-ation",
+            "podcast, pod-cast",
+            "message, mes-sage"
     })
     public void testEnUs(String input, String expected) {
         Hyphenator h = Hyphenator.getInstance("en");

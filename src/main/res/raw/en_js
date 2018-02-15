@@ -20,3 +20,21 @@ Hyphenopoly.languages['en-us'] = {
     valueStoreLength: 20195
 };
 Hyphenopoly.languages.en = Hyphenopoly.languages['en-us'];
+
+  // Hyphenation exceptions, https://github.com/ytiurin/hyphen/blob/master/patterns/en-us.js
+  var exceptions=`
+as-so-ciate
+as-so-ciates
+dec-li-na-tion
+oblig-a-tory
+phil-an-thropic
+present
+presents
+project
+projects
+reci-procity
+re-cog-ni-zance
+ref-or-ma-tion
+ret-ri-bu-tion
+ta-ble
+`;

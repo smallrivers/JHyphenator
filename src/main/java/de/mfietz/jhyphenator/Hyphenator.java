@@ -23,11 +23,12 @@ public class Hyphenator implements Serializable {
 //        cached = new HashMap<>();
 //    }
 
-    private TrieNode trie;
-    private int leftMin;
-    private int rightMin;
-    private String patternChars;
-    private String splitRegEx;
+    private final TrieNode trie;
+    private final int leftMin;
+    private final int rightMin;
+    private final String patternChars;
+    private final String splitRegEx;
+    private final HashMap<String, int[]> mExceptions;
 
     private Hyphenator(HyphenPattern pattern) {
         this.trie = createTrie(pattern.patterns);
@@ -39,7 +40,7 @@ public class Hyphenator implements Serializable {
             s = s.substring(2);
         patternChars = pc + s.toUpperCase();
         splitRegEx = "((?<=[^" + patternChars + "])|(?=[^_" + patternChars + "]))";
-
+        mExceptions = pattern.mExceptions;
     }
 
     /**
@@ -138,9 +139,25 @@ public class Hyphenator implements Serializable {
      * @return list of syllables
      */
     public List<String> hyphenate(String word) {
-        word = "_" + word + "_";
+        String wl = word.toLowerCase();
+        List<String> result = new ArrayList<String>();
 
-        String lowercase = word.toLowerCase();
+        if (mExceptions != null) {
+            int[] hypPos = mExceptions.get(wl);
+            if (hypPos != null) {
+                // declination :
+                // dec +3=3
+                // li  +2=5
+                // na  +2=7
+                // tion
+                for (int i = 0; i < hypPos.length; i++) {
+                    result.add(word.substring((i == 0 ? 0 : hypPos[i-1]), hypPos[i]));
+                }
+                return result;
+            }
+        }
+        word = "_" + word + "_";
+        String lowercase = "_" + wl + "_";
 
         int wordLength = lowercase.length();
         int[] points = new int[wordLength];
@@ -170,7 +187,6 @@ public class Hyphenator implements Serializable {
             }
         }
 
-        List<String> result = new ArrayList<String>();
         int start = 1;
         for (int i = 1; i < wordLength - 1; i++) {
             if (i > this.leftMin && i < (wordLength - this.rightMin) && points[i] % 2 > 0) {

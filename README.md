@@ -15,17 +15,22 @@ e.g. Hungarian hyphenation patters in the original HyphenationPattern class by @
 Now they are safely included too. 
 
 Included hyphenation patterns were adapted from [Hyphenator.js](https://code.google.com/p/hyphenator/)
-and [Hyphenopoly](https://github.com/mnater/Hyphenopoly)
+and [Hyphenopoly](https://github.com/mnater/Hyphenopoly). I also imported some missing hyphenation
+patters (af, bg, cy) from https://github.com/ytiurin/hyphen project. These patterns are in slightly
+different format, so wrote a converter for them (CovertUtil class in under test directory). From
+the same ytiurin project I adapted hyphenation exceptions for English and Portuguese patterns.
 
 # Language patterns
-The number of pattrns is now increased to 44, from the 29 included in the original JHyphenator.
+The number of pattrns is now increased to 47, from the 29 included in the original JHyphenator.
 The codes given in parenthesis may not be correct ISO language codes, but the file names to use
 in Java code.
 
+* Afrikaans (af) 
 * American English (en)
 * Armenian (hy)
 * Belarusian (be)
 * Bengali (bn)
+* Bulgarian (bg)
 * British English (en_gb)
 * Catalan; Valencian (ca)
 * Croatian (hr)
@@ -66,4 +71,5 @@ in Java code.
 * Telugu (te)
 * Turkish (tr)
 * Ukrainian (uk)
+* Welsh (cy)
 

@@ -13,3 +13,9 @@ Hyphenopoly.languages.pt = {
     patternArrayLength: 1015,
     valueStoreLength: 677
 };
+
+  // Hyphenation exceptions from https://github.com/ytiurin/hyphen/blob/master/patterns/pt.js
+  var exceptions=`
+hard-ware
+soft-ware
+`;

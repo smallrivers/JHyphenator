@@ -1,17 +1,17 @@
 package de.mfietz.jhyphenator;
 
 import android.annotation.SuppressLint;
-import android.util.SparseArray;
-
-import com.hyperionics.ttssetup.AndyUtil;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -28,13 +28,15 @@ public class HyphenPattern {
     final int rightMin;
     final Map<Integer, String> patterns;
     final String patternChars;
+    final HashMap<String, int[]> mExceptions;
 
-    private HyphenPattern(String lang, int leftMin, int rightMin, Map<Integer, String> patterns, String patternChars) {
+    private HyphenPattern(String lang, int leftMin, int rightMin, Map<Integer, String> patterns, String patternChars, HashMap<String, int[]> exceptions) {
         this.lang = lang;
         this.leftMin = leftMin;
         this.rightMin = rightMin;
         this.patterns = patterns;
         this.patternChars = patternChars;
+        this.mExceptions = exceptions;
     }
 
     public static HyphenPattern create(String lang) {
@@ -50,6 +52,7 @@ public class HyphenPattern {
             int leftMin = 1, rightMin = 1;
             @SuppressLint("UseSparseArrays")
             HashMap<Integer, String> pattern = new HashMap<>();
+            HashMap<String, int[]> exceptions = null;
             while ((line = reader.readLine()) != null) {
                 if (line.matches("\\s*leftmin\\s*:\\s*\\d+.*")) {
                     leftMin = Integer.parseInt(line.split("[^\\d]+")[1]);
@@ -70,16 +73,48 @@ public class HyphenPattern {
                 else if (line.matches("\\s*patternChars\\s*:\\s*\\\".*\\\".*")) {
                     String[] ss = line.split("\\\"");
                     patChars = ss[1];
-                } else if (line.matches("\\s*patternChars\\s*:\\s*unescape\\(\\s*\\\".*\\\"\\).*")) {
+                }
+                else if (line.matches("\\s*patternChars\\s*:\\s*unescape\\(\\s*\\\".*\\\"\\).*")) {
                     // patternChars: unescape("ଆଅଇଈଉଊଋଏଐଔକଗଖଘଙଚଛଜଝଞଟଠଡଢଣତଥଦଧନପଫବଭମଯରଲଵଶଷସହଳିୀାୁୂୃୋୋୈୌୗ୍ଃଂ%u200D"),
                     String[] ss = line.split("\\\"");
                     patChars = ss[1];
                     // convert %uXXXX to \\uXXXX, then decode to actual character
                     Properties p = new Properties();
                     p.load(new StringReader("ue="+patChars.replace("%u", "\\u")));
-                    patChars = p.getProperty("ue");                }
+                    patChars = p.getProperty("ue");
+                }
+                else if (line.matches("\\s*var\\s+exceptions\\s*=\\s*`\\s*") && !patChars.equals("")) {
+                    String pc = patChars.replace("-", "\\-");
+                    String allChars = pc.charAt(0) == '_' ? pc.substring(1) : pc;
+                    if (allChars.startsWith("\\-"))
+                        allChars = allChars.substring(2);
+                    allChars = "\\-" + pc + allChars.toUpperCase();
+                    exceptions = new HashMap<>();
+                    while ((line = reader.readLine()) != null) {
+                        line = line.trim();
+                        if (line.matches("[" + allChars + "]{3,}")) {
+                            String[] a = line.split("\\-");
+                            // declination :
+                            // dec +3=3
+                            // li  +2=5
+                            // na  +2=7
+                            // tion +4=11
+                            String[] syl = line.split("\\-");
+                            int[] hypPos = new int[syl.length];
+                            for (int i = 0; i < syl.length; i++) {
+                                hypPos[i] = (i > 0 ? hypPos[i-1] : 0) + syl[i].length();
+                            }
+                            line = line.replace("-", "");
+                            exceptions.put(line, hypPos);
+                        }
+                        else
+                            break;
+                    }
+                    if (exceptions.size() == 0)
+                        exceptions = null;
+                }
             }
-            return new HyphenPattern(lang, leftMin, rightMin, pattern, patChars);
+            return new HyphenPattern(lang, leftMin, rightMin, pattern, patChars, exceptions);
         }
         catch (IOException iox) {
             iox.printStackTrace();
