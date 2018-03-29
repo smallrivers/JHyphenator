@@ -1,7 +1,5 @@
 package de.mfietz.jhyphenator;
 
-import android.annotation.SuppressLint;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +48,6 @@ public class HyphenPattern {
             reader = new BufferedReader(langPatternsStream); //new InputStreamReader(AndyUtil.getApp().getAssets().open("hyphens/" + lang + ".js"), "UTF-8"));
             String line, patChars = "";
             int leftMin = 1, rightMin = 1;
-            @SuppressLint("UseSparseArrays")
             HashMap<Integer, String> pattern = new HashMap<>();
             HashMap<String, int[]> exceptions = null;
             while ((line = reader.readLine()) != null) {
