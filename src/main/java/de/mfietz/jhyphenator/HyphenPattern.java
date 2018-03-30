@@ -3,7 +3,7 @@ package de.mfietz.jhyphenator;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class HyphenPattern {
             return null;
         BufferedReader reader = null;
         try {
-            InputStreamReader langPatternsStream = mStrmProvider.getPatStreamForLang(lang);
+            Reader langPatternsStream = mStrmProvider.getPatStreamForLang(lang);
             if (langPatternsStream == null)
                 return null;
             reader = new BufferedReader(langPatternsStream); //new InputStreamReader(AndyUtil.getApp().getAssets().open("hyphens/" + lang + ".js"), "UTF-8"));
@@ -129,7 +129,7 @@ public class HyphenPattern {
     }
 
     public interface StreamReaderProvider {
-        InputStreamReader getPatStreamForLang(String lang) throws IOException;
+        Reader getPatStreamForLang(String lang) throws IOException;
     }
 
 }

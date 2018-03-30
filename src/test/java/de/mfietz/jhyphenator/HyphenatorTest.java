@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
              * @throws IOException
              */
             @Override
-            public InputStreamReader getPatStreamForLang(String lang) throws IOException {
+            public Reader getPatStreamForLang(String lang) throws IOException {
                 // this provider finds android src/main/res/raw directory with hyphenation patterns,
                 // reads pattern files from there.
                 String path = Hyphenator.class.getProtectionDomain().getCodeSource().getLocation().getPath();
